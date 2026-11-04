@@ -1,0 +1,19 @@
+# ---- 构建产物 ----
+/build/
+/dist/
+/_build/
+*.spec
+__pycache__/
+*.py[cod]
+
+# ---- 打包好的 exe 与运行时依赖（走 Releases 分发，不进仓库） ----
+/Lattice.exe
+/_internal/
+
+# ---- 本地备份 ----
+*定稿前一版*
+/旧版备份/
+
+# ---- 运行时生成 ----
+*.log
+lattice.log

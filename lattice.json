@@ -1,0 +1,104 @@
+{
+  "_说明": "rect = [左边%, 上边%, 宽%, 高%]，相对工作区（自动避开任务栏/顶栏）。process 是 exe 名正则；末尾加 |* 表示\"列出的程序没开时，用桌面上剩下的任意窗口顶上\"，单写 * 就是完全不管程序、按最近使用顺序排。title 可选，区分同程序多窗口。margin=窗口与屏幕边的距离(px)，gap=相邻窗口之间的缝隙(px)。",
+  "profiles": [
+    {
+      "name": "工作三分屏（大左 + 右上 + 右下）",
+      "hotkey": "1",
+      "monitor": "primary",
+      "zones": [
+        {
+          "rect": [
+            0,
+            0,
+            62.3,
+            100
+          ],
+          "process": "chrome|msedge|firefox|brave|360se|QQBrowser|*"
+        },
+        {
+          "rect": [
+            62.3,
+            0,
+            37.7,
+            63
+          ],
+          "process": "WorkBuddy|*"
+        },
+        {
+          "rect": [
+            62.3,
+            63,
+            37.7,
+            37
+          ],
+          "process": "Weixin|WeChat|*"
+        }
+      ],
+      "margin": 2,
+      "gap": 2
+    },
+    {
+      "name": "左右对半",
+      "hotkey": "2",
+      "monitor": "primary",
+      "zones": [
+        {
+          "rect": [
+            0,
+            0,
+            50,
+            100
+          ],
+          "process": "chrome|msedge|firefox|brave|*"
+        },
+        {
+          "rect": [
+            50,
+            0,
+            50,
+            100
+          ],
+          "process": "WorkBuddy|Weixin|WeChat|Code|explorer|*"
+        }
+      ],
+      "margin": 2,
+      "gap": 2
+    },
+    {
+      "name": "三列等宽",
+      "hotkey": "3",
+      "monitor": "primary",
+      "zones": [
+        {
+          "rect": [
+            0,
+            0,
+            33.34,
+            100
+          ],
+          "process": "chrome|msedge|firefox|brave|*"
+        },
+        {
+          "rect": [
+            33.34,
+            0,
+            33.33,
+            100
+          ],
+          "process": "WorkBuddy|Code|notepad|*"
+        },
+        {
+          "rect": [
+            66.67,
+            0,
+            33.33,
+            100
+          ],
+          "process": "Weixin|WeChat|*"
+        }
+      ],
+      "margin": 2,
+      "gap": 2
+    }
+  ]
+}

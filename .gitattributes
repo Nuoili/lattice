@@ -1,0 +1,9 @@
+# 统一换行符，避免 Windows 本地与 GitHub 之间反复出现 "LF will be replaced by CRLF"
+* text=auto
+
+*.py     text eol=lf
+*.md     text eol=lf
+*.json   text eol=lf
+*.bat    text eol=crlf
+*.ico    binary
+*.png    binary
