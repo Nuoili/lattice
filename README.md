@@ -13,6 +13,12 @@ Lattice 的做法是：排完位后**逐像素实测每个窗口真正画内容�
 - 任何程序都能进格子（`process` 支持 `|*` 兜底通配）
 - 排完自动整理层叠顺序，消除 DWM 阴影外溢对缝隙的干扰
 
+## 下载
+
+[**Releases**](https://github.com/Nuoili/lattice/releases/latest) 里有打包好的 `Lattice-v1.0.0-win64.zip` —— 解压后双击 `Lattice/Lattice.exe` 即可，**不需要安装 Python**。
+
+> `_internal` 是运行时依赖，**整个 `Lattice` 目录要一起保留**，只拷 exe 单独跑不起来。
+
 ## 快速开始
 
 ```text
