@@ -17,3 +17,6 @@ __pycache__/
 # ---- 运行时生成 ----
 *.log
 lattice.log
+
+# ---- 项目记忆（WorkBuddy 本地状态，不入公开仓库） ----
+/.workbuddy/
