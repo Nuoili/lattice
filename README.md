@@ -38,12 +38,23 @@ Lattice 的做法是：排完位后**逐像素实测每个窗口真正画内容�
 
 热键用 `RegisterHotKey` **独占注册**，注册成功后其他软件收不到这组键。三组都被占用时会自动降级（`Ctrl+Alt+Shift+数字` → `Win+Alt+数字` → `Ctrl+Alt+数字`），实际生效的键位写在 `lattice.log` 里。
 
+## 卸载
+
+双击 `卸载器.bat`，确认后它会做完三件事：
+
+1. 结束运行中的 `Lattice.exe`
+2. 删掉开机自启项（`启动文件夹\Lattice-startup.bat`）
+3. 把整个程序目录送进回收站 —— **可从回收站还原**，不是硬删
+
+Lattice 是绿色免安装程序，不写注册表、不装服务，所以「卸载」= 删目录 + 清自启项。配置文件 `lattice.json` 就在程序目录里，想留着自己的布局方案，卸载前先拷出来。
+
 ## 目录结构
 
 ```text
 lattice/
 ├── Lattice.exe        # 双击这个
 ├── _internal/         # PyInstaller 运行时依赖，必须跟 exe 待在一起
+├── 卸载器.bat          # 卸载：结束进程 + 删开机自启 + 整个目录送回收站
 ├── lattice.py         # 全部源码（单文件）
 ├── lattice.json       # 你的布局方案
 ├── lattice.ico        # 图标
