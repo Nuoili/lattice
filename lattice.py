@@ -7,14 +7,17 @@ Lattice.exe  —— 一键把窗口摆成预设布局（纯 ctypes，零第三�
   Lattice.exe -p 2           应用第 2 套方案
   Lattice.exe --once         只排一次，不常驻
   Lattice.exe --list         列出当前可见窗口 + 所有方案
+  Lattice.exe --version      打印版本号
   Lattice.exe --capture      把"现在的窗口排布"算成百分比，打印出来
   Lattice.exe --capture --save   把当前排布存成新方案（追加到 lattice.json）
 
-热键（常驻时生效）：Ctrl+Alt+1..9 切换方案，Ctrl+Alt+Q 退出常驻
+热键（常驻时生效）：Ctrl+Alt+Shift+1..9 切换方案，Ctrl+Alt+Shift+Q 退出常驻
+托盘（常驻时生效）：左键单击 = 切到下一套方案（循环），右键 = 方案清单 / 配置 / 退出
 
 原理：读系统工作区（自动避开任务栏/顶栏/dock），按百分比算目标矩形，
       还原最大化窗口后用 SetWindowPos 摆位。全程单进程 DPI 感知，多屏按监视器算。
 """
+__version__ = "1.1.0"
 import ctypes
 import ctypes.wintypes as wt
 import json
@@ -1123,12 +1126,19 @@ def _tray_bind():
 
 
 def _tray_tip():
-    """悬停提示：带上实际生效的热键组合。"""
+    """悬停提示：当前方案 + 实际生效的热键组合。"""
     lab = _TRAY.get("hk_label") or ""
-    n = len(_TRAY.get("profiles") or []) or 3
+    profs = _TRAY.get("profiles") or []
+    n = len(profs) or 3
+    cur = _TRAY.get("cur", 0) + 1
+    if not (1 <= cur <= len(profs)):
+        cur = 1
+    name = profs[cur - 1].get("name", "") if profs else ""
+    head = "Lattice %s ｜ 当前 %d/%d %s" % (__version__, cur, n, name) if name \
+        else "Lattice %s ｜ 当前 %d/%d" % (__version__, cur, n)
     if lab:
-        return "Lattice ｜ %s1~%d 切方案，右键更多" % (lab, min(9, n))
-    return "Lattice ｜ 右键切方案 / 退出"
+        return ("%s ｜ 左键下一个，%s1~%d 切方案" % (head, lab, min(9, n)))[:127]
+    return (head + " ｜ 左键下一个方案，右键更多")[:127]
 
 
 def _tray_hicon():
@@ -1256,14 +1266,36 @@ def _unregister_hotkeys(hwnd, n=9):
             pass
 
 
-def _hotkey_fire(idx, profiles):
+def _apply_index(idx, profiles, tag):
+    """应用第 idx 套方案（1 起）。tag 只决定日志前缀，如 "热键命中 Ctrl+Alt+Shift+"。"""
     if not (1 <= idx <= len(profiles)):
-        return
+        return False
     prof = profiles[idx - 1]
     _TRAY["cur"] = idx - 1
-    log("热键命中 %s%d -> %s" % (_TRAY.get("hk_label", ""), idx, prof.get("name", "")))
+    log("%s%d -> %s" % (tag, idx, prof.get("name", "")))
     apply_profile(prof)
     toast("方案 %d　%s" % (idx, prof.get("name", "")), 1100)
+    return True
+
+
+def _hotkey_fire(idx, profiles):
+    _apply_index(idx, profiles, "热键命中 %s" % _TRAY.get("hk_label", ""))
+
+
+def _tray_cycle(profiles):
+    """托盘左键：切到下一套方案，最后一套之后回到第一套。
+
+    不依赖 current 是否被热键改过——都以 _TRAY["cur"] 为准，
+    这样热键切到方案 3 后再点托盘，走的是方案 1，不会跳。
+    """
+    n = len(profiles)
+    if not n:
+        return False
+    ok = _apply_index((_TRAY.get("cur", 0) + 1) % n + 1, profiles, "托盘左键切换 #")
+    hwnd = _TRAY.get("hwnd")
+    if ok and hwnd:
+        _tray_icon_add(hwnd)      # NIM_MODIFY：把"当前方案"刷进悬停提示
+    return ok
 
 
 def hotkey_loop(profiles, cfg=None):
@@ -1309,8 +1341,8 @@ def hotkey_loop(profiles, cfg=None):
                         log("托盘退出")
                         _tray_quit(h)
                     return 0
-                if ev == 0x0202:                    # 左键 = 方案1
-                    _hotkey_fire(1, profiles)
+                if ev == 0x0202:                    # 左键 = 切到下一套方案
+                    _tray_cycle(profiles)
                     return 0
                 return 0
             if msg == taskbar_created:
@@ -1545,6 +1577,9 @@ def main():
                 pass
     set_dpi_aware()
     argv = sys.argv[1:]
+    if "--version" in argv or "-v" in argv:
+        print("Lattice %s" % __version__)
+        return 0
     if "--console" not in argv:
         # 双击拉起时藏掉自己新建的控制台（从 cmd 里跑不受影响，--list 照样能看）
         _hide_own_console()
